@@ -1,0 +1,14 @@
+﻿# Node.js dependencies
+**/node_modules/
+
+# Playwright generated files
+automation/playwright-report/
+automation/test-results/
+
+# Environment and secret files
+.env
+.env.*
+
+# Operating system files
+.DS_Store
+Thumbs.db
