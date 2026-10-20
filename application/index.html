@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ShopTest QA demo store for manual and automated software testing practice.">
 
   <title>ShopTest QA | Online Store</title>
 
@@ -13,23 +14,27 @@
 
 <body>
   <header class="navbar">
-    <a href="#" class="logo">ShopTest<span> QA</span></a>
+    <a href="#" class="logo" aria-label="ShopTest QA home">
+      ShopTest<span> QA</span>
+    </a>
 
-    <nav>
+    <nav aria-label="Main navigation">
       <a href="#products">Products</a>
       <a href="#cart">My Cart (<span id="cart-count">0</span>)</a>
     </nav>
   </header>
 
   <main>
+    <!-- Hero section -->
     <section class="hero">
-      <div>
+      <div class="hero-content">
         <p class="eyebrow">YOUR EVERYDAY ONLINE STORE</p>
 
         <h1>Shopping made <span>simple.</span></h1>
 
         <p>
-          Discover useful products and enjoy a smooth shopping experience.
+          Discover useful products, find your favourites,
+          and enjoy a smooth shopping experience.
         </p>
 
         <a class="primary-btn" href="#products">Explore Products</a>
@@ -38,14 +43,69 @@
       <div class="hero-art" aria-hidden="true">🛍️</div>
     </section>
 
+    <!-- Products section -->
     <section id="products" class="section">
       <div class="section-heading">
         <div>
           <p class="eyebrow">OUR COLLECTION</p>
           <h2>Featured Products</h2>
+          <p class="section-description">
+            Search, filter and sort products to find what you need.
+          </p>
         </div>
 
-        <span id="product-count">6 products</span>
+        <span id="product-count" aria-live="polite">6 products</span>
+      </div>
+
+      <!-- Search, category, price and sorting controls -->
+      <div class="product-controls">
+        <div class="control-group search-control">
+          <label for="product-search">Search Products</label>
+          <input
+            id="product-search"
+            type="search"
+            placeholder="Search by product name..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="control-group">
+          <label for="category-filter">Category</label>
+          <select id="category-filter">
+            <option value="all">All Categories</option>
+            <option value="Audio">Audio</option>
+            <option value="Wearables">Wearables</option>
+            <option value="Footwear">Footwear</option>
+            <option value="Bags">Bags</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Electronics">Electronics</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="price-filter">Price Range</label>
+          <select id="price-filter">
+            <option value="all">All Prices</option>
+            <option value="under-50">Under $50</option>
+            <option value="50-100">$50–$100</option>
+            <option value="over-100">Over $100</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="sort-products">Sort By</label>
+          <select id="sort-products">
+            <option value="default">Default Order</option>
+            <option value="price-low-high">Price: Low to High</option>
+            <option value="price-high-low">Price: High to Low</option>
+            <option value="name-a-z">Name: A to Z</option>
+            <option value="name-z-a">Name: Z to A</option>
+          </select>
+        </div>
+
+        <button id="reset-filters" class="reset-btn" type="button">
+          Reset Filters
+        </button>
       </div>
 
       <div id="product-list" class="product-grid">
@@ -53,6 +113,7 @@
       </div>
     </section>
 
+    <!-- Shopping cart section -->
     <section id="cart" class="section cart-section">
       <div class="section-heading">
         <div>
@@ -81,9 +142,13 @@
       </div>
     </section>
 
+    <!-- Checkout section -->
     <section id="checkout" class="section checkout-section" hidden>
       <p class="eyebrow">ALMOST THERE</p>
       <h2>Checkout</h2>
+      <p class="section-description">
+        Enter your details to complete your demo order.
+      </p>
 
       <form id="checkout-form">
         <label for="customer-name">Full Name</label>
@@ -92,6 +157,7 @@
           name="customerName"
           type="text"
           placeholder="Enter your full name"
+          autocomplete="name"
           required
           minlength="2"
         >
@@ -102,6 +168,7 @@
           name="email"
           type="email"
           placeholder="you@example.com"
+          autocomplete="email"
           required
         >
 
@@ -110,6 +177,7 @@
           id="customer-address"
           name="address"
           placeholder="Enter your delivery address"
+          autocomplete="street-address"
           required
           minlength="5"
         ></textarea>

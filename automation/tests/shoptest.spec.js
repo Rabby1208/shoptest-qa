@@ -3,13 +3,15 @@ const { test, expect } = require('@playwright/test');
 
 const APP_URL = 'http://127.0.0.1:5500/application/index.html';
 
+// ========================================
+// Existing tests: TC-001 to TC-008
+// ========================================
+
 test('TC-001: Verify all six products are displayed', async ({ page }) => {
   await page.goto(APP_URL);
 
-  // Verify that all six products are displayed
   await expect(page.locator('.product-card')).toHaveCount(6);
 
-  // Verify important product names
   await expect(
     page.getByRole('heading', { name: 'Wireless Headphones' })
   ).toBeVisible();
@@ -22,25 +24,20 @@ test('TC-001: Verify all six products are displayed', async ({ page }) => {
 test('TC-002: Verify product can be added to cart', async ({ page }) => {
   await page.goto(APP_URL);
 
-  // Add Wireless Headphones to the cart
   await page.getByRole('button', {
     name: 'Add Wireless Headphones to cart'
   }).click();
 
-  // Verify cart item count
   await expect(page.locator('#cart-count')).toHaveText('1');
 
-  // Verify product appears inside the cart
   await expect(
     page.locator('#cart-items').getByText('Wireless Headphones', {
       exact: true
     })
   ).toBeVisible();
 
-  // Verify cart total
   await expect(page.locator('#cart-total')).toHaveText('$45.00');
 });
-
 
 test('TC-003: Verify quantity increases and cart total updates', async ({ page }) => {
   await page.goto(APP_URL);
@@ -103,20 +100,16 @@ test('TC-006: Verify checkout is disabled when cart is empty', async ({ page }) 
 test('TC-007: Verify checkout form rejects empty customer details', async ({ page }) => {
   await page.goto(APP_URL);
 
-  // Add a product so checkout becomes available
   await page.getByRole('button', {
     name: 'Add Wireless Headphones to cart'
   }).click();
 
-  // Open checkout
   await page.locator('#checkout-btn').click();
 
-  // Try to submit without entering customer details
   await page.getByRole('button', {
-    name: /place order|submit order|complete order/i
+    name: /place order/i
   }).click();
 
-  // Required fields should prevent submission
   await expect(page.locator('#customer-name')).toHaveAttribute('required', '');
   await expect(page.locator('#customer-email')).toHaveAttribute('required', '');
   await expect(page.locator('#customer-address')).toHaveAttribute('required', '');
@@ -139,7 +132,123 @@ test('TC-008: Verify successful checkout with valid customer details', async ({ 
     form.requestSubmit();
   });
 
-  await expect(page.locator('#order-message')).toBeVisible();
+  await expect(page.locator('#order-message')).toContainText(
+    'placed successfully'
+  );
+
   await expect(page.locator('#cart-count')).toHaveText('0');
   await expect(page.locator('#cart-total')).toHaveText('$0.00');
+});
+
+// ========================================
+// New tests: Product discovery features
+// ========================================
+
+test('TC-009: Verify product search works', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#product-search').fill('Camera');
+
+  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(
+    page.getByRole('heading', { name: 'Camera' })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { name: 'Wireless Headphones' })
+  ).toHaveCount(0);
+});
+
+test('TC-010: Verify category filter works', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#category-filter').selectOption('Audio');
+
+  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(
+    page.getByRole('heading', { name: 'Wireless Headphones' })
+  ).toBeVisible();
+});
+
+test('TC-011: Verify price filter works', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#price-filter').selectOption('under-50');
+
+  await expect(page.locator('.product-card')).toHaveCount(3);
+
+  await expect(
+    page.getByRole('heading', { name: 'Sunglasses' })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { name: 'Backpack' })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { name: 'Wireless Headphones' })
+  ).toBeVisible();
+});
+
+test('TC-012: Verify products can be sorted by price', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#sort-products').selectOption('price-low-high');
+
+  const prices = (await page.locator('.product-price').allTextContents())
+  .map(price => price.trim());
+  expect(prices).toEqual([
+    '$25.00',
+    '$35.00',
+    '$45.00',
+    '$55.00',
+    '$65.00',
+    '$120.00'
+  ]);
+});
+
+test('TC-013: Verify reset filters restores all products', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#product-search').fill('Camera');
+  await page.locator('#category-filter').selectOption('Electronics');
+  await page.locator('#price-filter').selectOption('over-100');
+  await page.locator('#sort-products').selectOption('price-high-low');
+
+  await expect(page.locator('.product-card')).toHaveCount(1);
+
+  await page.locator('#reset-filters').click();
+
+  await expect(page.locator('#product-search')).toHaveValue('');
+  await expect(page.locator('#category-filter')).toHaveValue('all');
+  await expect(page.locator('#price-filter')).toHaveValue('all');
+  await expect(page.locator('#sort-products')).toHaveValue('default');
+  await expect(page.locator('.product-card')).toHaveCount(6);
+});
+
+test('TC-014: Verify search and category filters work together', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#product-search').fill('Wireless');
+  await page.locator('#category-filter').selectOption('Audio');
+
+  await expect(page.locator('.product-card')).toHaveCount(1);
+
+  await expect(
+    page.getByRole('heading', { name: 'Wireless Headphones' })
+  ).toBeVisible();
+});
+
+test('TC-015: Verify message appears when no products match', async ({ page }) => {
+  await page.goto(APP_URL);
+
+  await page.locator('#product-search').fill('ProductDoesNotExist123');
+
+  await expect(page.locator('.product-card')).toHaveCount(0);
+
+  await expect(
+    page.getByText('No products found. Try changing your search or filters.')
+  ).toBeVisible();
+
+  await expect(page.locator('#product-count')).toHaveText('0 of 6 products');
 });
